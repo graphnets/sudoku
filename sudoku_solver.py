@@ -7,6 +7,9 @@
 # Algorithm used are from the following study materials:
 #  (i)  A Pencil-and-PaperAlgorithm for SolvingSudoku Puzzles - J. F. Crook
 #  (ii) http://digitalcommons.unl.edu/cgi/viewcontent.cgi?article=1015&context=mathmidexppap
+
+# Comments: This code is NOT clean. Has crazy high runtime complexity (and space complexity).
+# This code is incomplete. Partially solves Sudoku.
 #-------------------------------------
 
 import csv
@@ -646,6 +649,13 @@ def find_sizeNsets(n, block_id, df_markup_dict):
 
     return markup_list
 
+# cross out numbers in a block given a preempive set
+def cross_numbers(pset, bdict):
+    for cell, mkups in bdict.iteritems():  # only one entry in dict
+        common_nums = 
+
+
+
 # get subset markups of len N or smaller.
 def get_subsets(markups, bdict):
     pset = {}
@@ -653,9 +663,11 @@ def get_subsets(markups, bdict):
     for cell, mkup in bdict.iteritems():
         if (set(mkup) == set(markups)) or (set(mkup) <= set(markups)):
             pset[cell] = mkup
-        if (lm == len(mkup)) and (set(mkup)|set(markups) != 0):
+        if (lm == len(mkup)) and (len(set(mkup) & set(markups)) > 0):
             pset[cell] = mkup
-    
+
+        # now, check if numbers can be crossed-out
+        crossed_dict = cross_numbers(pset, bdict)
     
     print "\n\nPreemptive Set:", pset; 
     return pset
@@ -753,7 +765,7 @@ def validate(df):
     return flag
 
 def main():
-    block_dict = get_blocks_cells(); print block_dict;
+    block_dict = get_blocks_cells(); #print block_dict;
     input_df = pd.read_csv('unl.csv', header = None)
     #input_df = pd.read_csv('input.csv', header = None)
     print "\n\nInput grid: \n"
@@ -774,7 +786,7 @@ def main():
     print "\nForced DF:\n", forced_df2; 
 
     df = force2(forced_df2)
-    print "\n Latest DF:\n", df
+    print "\nLatest DF:\n", df
     
     # Check if successive runs of populate force returns newer df.
     # If not, do a different populate_force.
@@ -791,19 +803,9 @@ def main():
     # For each block, find pre-emptive sets
     preemptive_set_dict_grid = find_preemptive_sets_grid(df_markup_dict, df)
     print "\n\nPreemptive sets:\n", preemptive_set_dict_grid
-    exit()
-
 
     # From the markups, if xy, xy and xyz are candidates in three cells of a block,
     # then the cell marked xyz must hold z.
-
-
-    #place singleton values into df
-    #df1, cell_markup_dict = populate_singleton_values(input_df, cell_markup_dict)
-    
-    # generate pre-emptive sets
-    #premp_sets = gen_preemptive_sets(input_df, cell_markup_dict)
-
     
 
 if __name__ == "__main__":
