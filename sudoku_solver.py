@@ -1,6 +1,6 @@
 #!/bin/env python
 
-#-------------------------------------
+#---------------------------------------------------------------------------------------------
 # Sudoku Solver
 # Author : Srivathsan Srinivasagopalan [srivathsan.srinivas@gmail.com]
 # Date: 21st Oct 2014
@@ -27,7 +27,7 @@
 # quads = find_sizeNsets(4, block_id, df_markup_dict); print "Quads:", quads
 # pents = find_sizeNsets(5, block_id, df_markup_dict); print "Pents:", pents
 
-#-------------------------------------
+#--------------------------------------------------------------------------------------------
 
 import csv
 import pandas as pd
