@@ -646,36 +646,61 @@ def find_sizeNsets(n, block_id, df_markup_dict):
 
     return markup_list
 
+# get subset markups of len N or smaller.
+def get_subsets(markups, bdict):
+    pset = {}
+    lm = len(markups)
+    for cell, mkup in bdict.iteritems():
+        if (set(mkup) == set(markups)) or (set(mkup) <= set(markups)):
+            pset[cell] = mkup
+        if (lm == len(mkup)) and (set(mkup)|set(markups) != 0):
+            pset[cell] = mkup
+    
+    
+    print "\n\nPreemptive Set:", pset; 
+    return pset
+            
 
-
-
+    
 # returns preemptive_set_dict {(2,3,5,9): [(6,0), (6,0), (7,2), (8,2)], [(1,2,6,7,8): [(3,6), (3,8)]}
 # {tuple: list of cells}
-def find_preemptive_sets(block_id, df_markup_dict):
+def find_preemptive_sets(block_id, df_markup_dict, df):
     markup_list = get_markup_list_for_block(block_id, df_markup_dict)
     # find 3 cells of size 3 that has same numbers or some subset.
     # similarly, find 4 cells of size 4 that has same numbers or some subset.
-    size2sets = find_sizeNsets(2, block_id, df_markup_dict); print "size2sets:", size2sets
-    size3sets = find_sizeNsets(3, block_id, df_markup_dict); print "size3sets:", size3sets
-    size4sets = find_sizeNsets(4, block_id, df_markup_dict); print "size4sets:", size4sets
-    size5sets = find_sizeNsets(5, block_id, df_markup_dict); print "size5sets:", size5sets
+
+    block_cell_markups_dict = df_markup_dict[block_id]
+    print "block cell markups-dict:", block_cell_markups_dict; 
+
+    for cell, markups in block_cell_markups_dict.iteritems():
+        print "Markup:", markups
+        subsets = get_subsets(markups, block_cell_markups_dict)
+        #print "Subsets:", subsets
+
+
+    exit()
+
+    #doubles = find_sizeNsets(2, block_id, df_markup_dict); print "Doubles:", doubles
+    #triples = find_sizeNsets(3, block_id, df_markup_dict); print "Triples:", triples
+    #quads = find_sizeNsets(4, block_id, df_markup_dict); print "Quads:", quads
+    #pents = find_sizeNsets(5, block_id, df_markup_dict); print "Pents:", pents
     
     #[89356] = [89356, 8957, 8936, 897, 856]
 
     #if size2sets:
     #    process_size2sets(block_id, df)
 
-    #if size3sets:
-    #    process_size3sets(block_id, df)
+    #if triples:
+    #    process_triples(block_id,  triples, df_markup_dict, df)
 
 
     exit()
     
 
-def find_preemptive_sets_grid(df_markup_dict):
+def find_preemptive_sets_grid(df_markup_dict, df):
     preemptive_sets_grid = {}
     for block_id in range(1, 10):
-        preemptive_sets_grid[block_id] = find_preemptive_sets(block_id, df_markup_dict)
+        preemptive_sets_grid[block_id] = find_preemptive_sets(block_id, df_markup_dict, df)
 
     return preemptive_sets_grid
 
@@ -764,7 +789,7 @@ def main():
 
 
     # For each block, find pre-emptive sets
-    preemptive_set_dict_grid = find_preemptive_sets_grid(df_markup_dict)
+    preemptive_set_dict_grid = find_preemptive_sets_grid(df_markup_dict, df)
     print "\n\nPreemptive sets:\n", preemptive_set_dict_grid
     exit()
 
