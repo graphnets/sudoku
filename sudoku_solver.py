@@ -10,6 +10,23 @@
 
 # Comments: This code is NOT clean. Has crazy high runtime complexity (and space complexity).
 # This code is incomplete. Partially solves Sudoku.
+
+# TODO:
+
+# 1 - process all markups for each block, row and column. [do cross-outs]
+# 2 - find an efficient way to compare 2 grids. 
+# 3 - find an efficient way to validate a grid if it satisfies Sudoku criteria:
+# The solution of a Sudoku puzzle requires that every row, column, and box contain all 
+# the numbers in the set [1, 2, . . . , 9] and that every cell be occupied by one
+# and only one number.
+
+# From the markups, if xy, xy and xyz are candidates in three cells of a block,
+# then the cell marked xyz must hold z.
+# doubles = find_sizeNsets(2, block_id, df_markup_dict); print "Doubles:", doubles
+# triples = find_sizeNsets(3, block_id, df_markup_dict); print "Triples:", triples
+# quads = find_sizeNsets(4, block_id, df_markup_dict); print "Quads:", quads
+# pents = find_sizeNsets(5, block_id, df_markup_dict); print "Pents:", pents
+
 #-------------------------------------
 
 import csv
@@ -19,10 +36,8 @@ from collections import OrderedDict
 from itertools import chain, combinations
 
 
-#---------------------------------------------
-# input: input dataframe
-# output: dict of row # and array of zero elem
-#---------------------------------------------
+
+# get dict of row # and array of zero elem
 def get_empty_cells(input_df):
     zero_dict = {}
     zero_list = []
@@ -172,7 +187,6 @@ def get_coords(target_block, target_row):
 def get_row_pairs(input_df, row_array):
     row_a = set(); row_b = set(); row_c = set()
     
-    # for now, considering only rows 0, 1 and 2
     v = get_row_values(row_array[0], input_df)
     row_a.update(v); row_a.remove(0)
 
@@ -335,7 +349,6 @@ def get_num_eligible_cells(empty_cells, number, block_id, df):
     for cell in empty_cells:
         r = cell[0]; c = cell[1]
         coord = [r,c]
-        # cell_eligibility: 0 = Not eligible. 1 = Eligible.
         flag = get_cell_eligibilty(number,coord, block_id, df)
         if flag == 1:
             coord_list.append(coord)
@@ -433,70 +446,11 @@ def get_box_value_set(input_df, box_tl_br):
 
     return box_value_set
 
-# -- This is stage 1 and 2 - creating markups.
-# -- also force single values into the table.
-def gen_markups(input_df, zero_list):
-    #print zero_list
-    dfT = input_df.T
-    candidate_num_set = set()
-    cell_markup_dict = {}
-    full_set = set()
-    full_set.update([1,2,3,4,5,6,7,8,9])
-    for cell in zero_list:
-        #print cell
-        r = cell[0]; c = cell[1]
-        row_set = set(); col_set = set()
-        #print dfT[r]; print dfT[c]
-        row_set.update(dfT[r]); #print row_set
-        col_set.update(input_df[c]); #print col_set
-        row_U_col_set = row_set | col_set; #print row_U_col_set
-        candidate_num_set = full_set - row_U_col_set
-        # a - if a number is in box, remove from candidate set
-        box_tl_br = get_box_tl_br(cell)
-        box_value_set = get_box_value_set(input_df, box_tl_br)
-        #print box_value_set
-        candidate_num_set = candidate_num_set - box_value_set
-        
-        #print candidate_num_set
-        if len(candidate_num_set) == 1:
-            input_df[r][c] = canidate_num_set.pop()
-        else:
-            cell_markup_dict[tuple(cell)] = candidate_num_set
-        #print cell_markup_dict
-        
-    #print cell_markup_dict
-    return (input_df, cell_markup_dict)
-
-def populate_singleton_values(input_df, cell_markup_dict):
-    a_df = input_df.copy(deep = True)
-    #key_list = cell_markup_dict.keys()
-
-    for k, v in cell_markup_dict:
-        print k; print v; exit()
-        if len(v) == 1:
-            print k;
-            a_df[k[0]][k[1]] = v.pop()
-            cell_markup_dict.pop(k)
-
-    return (a_df, cell_markup_dict)
-
-def gen_markups1(input_df, zero_dict):
-    dfT = input_df.T
-    for key, value in zero_dict.iteritems():
-        print key, value
-        #check if they are indeed zeros in original input
-        for item in value:
-            print dfT[key][item]
 
 # revisit this
 def get_blk_id_density_sorted(df):
     blocks = list(range(1,10))
     return blocks
-
-
-
-
-
 
 
 # get a list of markup numbers for a given cell in a given block
@@ -619,12 +573,6 @@ def get_blocks_cells():
     return block
 
 
-def get_preemptive_sets(input_df, cell_markup_dict):
-    # consider each block (total of 9 blocks - 1 - 9)
-    for block_id in range(1,10):
-        print block_id
-        pset[block_id] = get_block_psets(block_id, input_df, cell_markup_dict)
-
 # returns markups for a block
 # eg: block-1 = [[8, 9, 7], [8, 9, 3, 5, 6], [8, 5, 6], [8, 9, 5, 7], [8, 9, 3, 5, 6], [8, 9, 3, 6]]
 def get_markup_list_for_block(block_id, df_markup_dict):
@@ -635,7 +583,6 @@ def get_markup_list_for_block(block_id, df_markup_dict):
     
     print "\nMarkups for block %s: %s" %(block_id, markup_list)
     return markup_list
-
 
 
 # returns all markups that are of size 2 and their corresponding cells
@@ -650,9 +597,9 @@ def find_sizeNsets(n, block_id, df_markup_dict):
     return markup_list
 
 # cross out numbers in a block given a preempive set
-def cross_numbers(pset, bdict):
-    for cell, mkups in bdict.iteritems():  # only one entry in dict
-        common_nums = 
+#def crossout_numbers(pset, bdict):
+#    for cell, mkups in bdict.iteritems():  # only one entry in dict
+#        common_nums = 
 
 
 
@@ -667,9 +614,8 @@ def get_subsets(markups, bdict):
             pset[cell] = mkup
 
         # now, check if numbers can be crossed-out
-        crossed_dict = cross_numbers(pset, bdict)
-    
-    print "\n\nPreemptive Set:", pset; 
+        #crossed_dict = crossout_numbers(pset, bdict)
+
     return pset
             
 
@@ -678,35 +624,13 @@ def get_subsets(markups, bdict):
 # {tuple: list of cells}
 def find_preemptive_sets(block_id, df_markup_dict, df):
     markup_list = get_markup_list_for_block(block_id, df_markup_dict)
-    # find 3 cells of size 3 that has same numbers or some subset.
-    # similarly, find 4 cells of size 4 that has same numbers or some subset.
 
     block_cell_markups_dict = df_markup_dict[block_id]
-    print "block cell markups-dict:", block_cell_markups_dict; 
 
     for cell, markups in block_cell_markups_dict.iteritems():
-        print "Markup:", markups
         subsets = get_subsets(markups, block_cell_markups_dict)
-        #print "Subsets:", subsets
 
-
-    exit()
-
-    #doubles = find_sizeNsets(2, block_id, df_markup_dict); print "Doubles:", doubles
-    #triples = find_sizeNsets(3, block_id, df_markup_dict); print "Triples:", triples
-    #quads = find_sizeNsets(4, block_id, df_markup_dict); print "Quads:", quads
-    #pents = find_sizeNsets(5, block_id, df_markup_dict); print "Pents:", pents
-    
-    #[89356] = [89356, 8957, 8936, 897, 856]
-
-    #if size2sets:
-    #    process_size2sets(block_id, df)
-
-    #if triples:
-    #    process_triples(block_id,  triples, df_markup_dict, df)
-
-
-    exit()
+    return subsets
     
 
 def find_preemptive_sets_grid(df_markup_dict, df):
@@ -765,48 +689,28 @@ def validate(df):
     return flag
 
 def main():
-    block_dict = get_blocks_cells(); #print block_dict;
-    input_df = pd.read_csv('unl.csv', header = None)
-    #input_df = pd.read_csv('input.csv', header = None)
+    block_dict = get_blocks_cells()
+    input_df = pd.read_csv('input.csv', header = None)
     print "\n\nInput grid: \n"
     print input_df
-
-    #nums = get_non_zero_nums_in_block(2, input_df); print nums; exit()
-
-
-    zero_list = get_empty_cells(input_df)
 
     # Force values into cells
     forced_df = populate_force2(input_df); 
     forced_df1 = populate_force2(forced_df); 
-    #grid_diff = grid_diff(forced_df, forced_df1)
-    #print "grid_diff:", grid_diff
-
     forced_df2 = populate_force2(forced_df1)
     print "\nForced DF:\n", forced_df2; 
 
     df = force2(forced_df2)
     print "\nLatest DF:\n", df
     
-    # Check if successive runs of populate force returns newer df.
-    # If not, do a different populate_force.
-    #new_df = force2(forced_df2)
-    #print "\n New DF: \n", new_df
-
-
-    # step-1&2
     df_markup_dict = do_markups(df)
     print "\n\nInitial Markups are: \n"
     print df_markup_dict
-
 
     # For each block, find pre-emptive sets
     preemptive_set_dict_grid = find_preemptive_sets_grid(df_markup_dict, df)
     print "\n\nPreemptive sets:\n", preemptive_set_dict_grid
 
-    # From the markups, if xy, xy and xyz are candidates in three cells of a block,
-    # then the cell marked xyz must hold z.
-    
 
 if __name__ == "__main__":
     main()
