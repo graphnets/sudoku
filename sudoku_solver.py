@@ -662,11 +662,11 @@ def find_preemptive_sets(block_id, df_markup_dict):
     
     #[89356] = [89356, 8957, 8936, 897, 856]
 
-    if size2sets:
-        process_size2sets(block_id, df)
+    #if size2sets:
+    #    process_size2sets(block_id, df)
 
-    if size3sets:
-        process_size3sets(block_id, df)
+    #if size3sets:
+    #    process_size3sets(block_id, df)
 
 
     exit()
