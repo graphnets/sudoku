@@ -504,7 +504,7 @@ def do_markups(df):
 def get_blocks_cells():
     block = {}
     num = 0  # block number [starts from 1 to 9]
-    
+            
     cell_list = []
     for r in range(0, 3):
         for c in range(0, 3):
@@ -569,6 +569,8 @@ def get_blocks_cells():
             cell = (r, c)
             cell_list.append(cell)
         block[9] = cell_list
+
+
 
     return block
 
@@ -689,7 +691,6 @@ def validate(df):
     return flag
 
 def main():
-    block_dict = get_blocks_cells()
     input_df = pd.read_csv('input.csv', header = None)
     print "\n\nInput grid: \n"
     print input_df
