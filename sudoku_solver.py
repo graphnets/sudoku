@@ -9,7 +9,7 @@
 #  (ii) http://digitalcommons.unl.edu/cgi/viewcontent.cgi?article=1015&context=mathmidexppap
 
 # Comments: This code is NOT clean. Has crazy high runtime complexity (and space complexity).
-# This code is incomplete. Partially solves Sudoku.
+# This code works only certain, easy puzzles.
 
 # TODO:
 
@@ -63,19 +63,6 @@ def get_empty_cells_in_block(block_id, df):
 
     return empty_cells
 
-def get_empty_cells_dict(df):
-    empty_row_dict = {}
-    coord_list = []
-    for row in range(0, 9):
-        for col in range(0, 9):
-            if df.T[row][col] == 0:
-                cell = tuple([row, col])
-                coord_list.append(cell)
-        empty_row_dict[row] = coord_list
-
-    print empty_row_dict; exit()
-    return empty_row_dict
-                
 
 # return a list of col values
 def get_col_values(col_num, input_df):
@@ -618,27 +605,16 @@ def process_single_mkups(df_markup_dict, df):
 
 def process_blocks(df):
     df_markup_dict = do_markups(df)
-    print "\n second Markups\n", df_markup_dict
+    #print "\n second Markups\n", df_markup_dict
 
     for cell_mkup_combo in df_markup_dict.itervalues():
         for cell, markup in cell_mkup_combo.iteritems():
             if len(markup) == 1:
-                #r = cell[0]; c = cell[1]
-                #coord = [target_row, col]
                 num = markup[0]
                 df = force_number(num, cell, df)
                 
             
-    print df
-    exit()
-    #ecells = get_empty_cells_in_block(block_id, df):
-    #for ecell in ecells:
-        
-        
-    
-    #for row in range(0,10):
-        
-
+    return df
 
 
 # returns all markups that are of size 2 and their corresponding cells
@@ -735,14 +711,17 @@ def validate_col(col_num):
 
 # flag = 0: Invalid
 def validate(df):
+    flag_count = 0
     for block_id in range(1, 10):
-        flag = validate_block_id(block_id, df)
+        flag = validate_block(block_id, df)
         if flag:
-            print "\n df is complete and valid."
-        else:
-            print "\n Grid is invalid."
+            flag_count += 1
 
-    return flag
+    if flag_count == 9:
+        print "\nThe given Sudoku puzzle is solved and the solution is valid.\n"
+    else:
+        print "\nThe given Sudoku puzzle is not yet solved. Current 'solution' is invalud.\n"
+
 
 def main():
     input_df = pd.read_csv('insight.csv', header = None)
@@ -753,22 +732,16 @@ def main():
     forced_df = populate_force2(input_df); 
     forced_df1 = populate_force2(forced_df); 
     forced_df2 = populate_force2(forced_df1)
-    print "\nForced DF:\n", forced_df2; 
-
     df = force2(forced_df2)
-    print "\nLatest DF:\n", df
-    
     df_markup_dict = do_markups(df)
-    print "\n\nInitial Markups are: \n"
-    print df_markup_dict
 
     # process each block's markups
     df = process_single_mkups(df_markup_dict, df)
-    print "\nAfter forcing singleton markups: \n", df
-    
 
     df = process_blocks(df)
-    print "\nAfter processing blocks: \n", df
+    print "\nSolved Sudoku: \n", df
+
+    flag = validate(df)
 
     # For each block, find pre-emptive sets
     #preemptive_set_dict_grid = find_preemptive_sets_grid(df_markup_dict, df)
