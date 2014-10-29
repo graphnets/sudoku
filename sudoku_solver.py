@@ -92,9 +92,8 @@ def flatten_list(l):
     flattened = [val for sublist in l for val in sublist]
     return flattened
 
-
 # returns a list of numbers for a given block_id
-def get_non_zero_nums_in_block(block_id, input_df):
+def get_all_nums_in_block(block_id, input_df):
     dfT = input_df.T
     blocks_dict = get_blocks_cells(); 
     values = []
@@ -103,6 +102,12 @@ def get_non_zero_nums_in_block(block_id, input_df):
         num = dfT[cell[0]][cell[1]]
         values.append(num)
 
+    return values
+
+
+# returns a list of non-zero numbers for a given block_id
+def get_non_zero_nums_in_block(block_id, input_df):
+    values = get_all_nums_in_block(block_id, input_df)
     val_set = set(values); 
     if 0 in val_set:
         val_set.remove(0)
@@ -673,40 +678,47 @@ def find_preemptive_sets_grid(df_markup_dict, df):
     return preemptive_sets_grid
 
 
-
+# flag = 0: Invalid
 def validate_block(block_id, df):
-    numbers = get_non_zero_nums_in_block(block_id, df)
-    a = len(numbers)
-    b = len(list(set(numbers)))
-    flag = 1  # valid
-    if (a != b):
-        print "invalid block"
+    flag = 1
+    numbers = get_all_nums_in_block(block_id, df)
+    if 0 in numbers:
         flag = 0
-    
+    else:
+        a = len(numbers)
+        b = len(list(set(numbers)))
+        if (a != b):
+            flag = 0
+            
     return flag
 
 
 def validate_row(row_num, df):
+    flag = 1
     numbers = get_row_values(row_num, df)
-    a = len(numbers)
-    b = len(list(set(numbers)))
-    flag = 1  # valid
-    if (a != b):
-        print "invalid row"
+    if 0 in numbers:
         flag = 0
+    else:
+        a = len(numbers)
+        b = len(list(set(numbers)))
+        if (a != b):
+            flag = 0
     
     return flag
 
 
-def validate_col(col_num):
+def validate_col(col_num, df):
+    flag = 1
     numbers = get_col_values(col_num, df)
-    a = len(numbers)
-    b = len(list(set(numbers)))
-    flag = 1  # valid
-    if (a != b):
-        print "invalid col"
+    if 0 in numbers:
         flag = 0
-    
+    else:
+        a = len(numbers)
+        b = len(list(set(numbers)))
+        if (a != b):
+            print "invalid col"
+            flag = 0
+            
     return flag
 
 # flag = 0: Invalid
@@ -723,10 +735,42 @@ def validate(df):
         print "\nThe given Sudoku puzzle is not yet solved. Current 'solution' is invalud.\n"
 
 
+def validate_input_rc(df):
+    flag = 1
+    all_nums = []
+    for val in range(0, 9):
+        row_nums = get_row_values(val, df)
+        all_nums = all_nums + row_nums
+        col_nums = get_col_values(val, df)
+        all_nums = all_nums + col_nums
+    for num in all_nums:
+            if num not in range(0, 10):
+                flag = 0
+        
+
+    return flag
+
+def validate_input_grid(input_df):
+    flag = 1
+    dfshape = input_df.shape
+    if dfshape[0] != dfshape[1]:
+        flag = 0
+    else:
+        flag = validate_input_rc(input_df)
+
+    return flag
+    
+
 def main():
     input_df = pd.read_csv('insight.csv', header = None)
     print "\n\nInput grid: \n"
     print input_df
+    flag = validate_input_grid(input_df)
+    if flag == 0:
+        print "\nThe given Sudoku puzzle is invalid."
+        exit()
+    else:
+        print "\nThe given Sudoku puzzle is valid."
 
     # Force values into cells
     forced_df = populate_force2(input_df); 
