@@ -63,6 +63,19 @@ def get_empty_cells_in_block(block_id, df):
 
     return empty_cells
 
+def get_empty_cells_dict(df):
+    empty_row_dict = {}
+    coord_list = []
+    for row in range(0, 9):
+        for col in range(0, 9):
+            if df.T[row][col] == 0:
+                cell = tuple([row, col])
+                coord_list.append(cell)
+        empty_row_dict[row] = coord_list
+
+    print empty_row_dict; exit()
+    return empty_row_dict
+                
 
 # return a list of col values
 def get_col_values(col_num, input_df):
@@ -103,7 +116,9 @@ def get_non_zero_nums_in_block(block_id, input_df):
         num = dfT[cell[0]][cell[1]]
         values.append(num)
 
-    val_set = set(values); val_set.remove(0)
+    val_set = set(values); 
+    if 0 in val_set:
+        val_set.remove(0)
     return list(val_set)
 
 
@@ -188,13 +203,19 @@ def get_row_pairs(input_df, row_array):
     row_a = set(); row_b = set(); row_c = set()
     
     v = get_row_values(row_array[0], input_df)
-    row_a.update(v); row_a.remove(0)
+    row_a.update(v)
+    if 0 in row_a:
+        row_a.remove(0)
 
     v = get_row_values(row_array[1], input_df)
-    row_b.update(v); row_b.remove(0)
+    row_b.update(v); 
+    if 0 in row_b:
+        row_b.remove(0)
 
     v = get_row_values(row_array[2], input_df)
-    row_c.update(v); row_c.remove(0)
+    row_c.update(v)
+    if 0 in row_c:
+        row_c.remove(0)
 
     # {0: row_a values, 1:  row_b values, 2: row_c values}
     row_dict = {row_array[0]: row_a, row_array[1]: row_b, row_array[2]: row_c}
@@ -570,8 +591,6 @@ def get_blocks_cells():
             cell_list.append(cell)
         block[9] = cell_list
 
-
-
     return block
 
 
@@ -585,6 +604,41 @@ def get_markup_list_for_block(block_id, df_markup_dict):
     
     print "\nMarkups for block %s: %s" %(block_id, markup_list)
     return markup_list
+
+
+def process_single_mkups(df_markup_dict, df):
+    for blk, cell_mkup_combo in df_markup_dict.iteritems():
+        for cell, mkup in cell_mkup_combo.iteritems():
+            if len(mkup) == 1:
+                num = mkup[0]
+                force_number(num, cell, df)
+                
+    return df
+
+
+def process_blocks(df):
+    df_markup_dict = do_markups(df)
+    print "\n second Markups\n", df_markup_dict
+
+    for cell_mkup_combo in df_markup_dict.itervalues():
+        for cell, markup in cell_mkup_combo.iteritems():
+            if len(markup) == 1:
+                #r = cell[0]; c = cell[1]
+                #coord = [target_row, col]
+                num = markup[0]
+                df = force_number(num, cell, df)
+                
+            
+    print df
+    exit()
+    #ecells = get_empty_cells_in_block(block_id, df):
+    #for ecell in ecells:
+        
+        
+    
+    #for row in range(0,10):
+        
+
 
 
 # returns all markups that are of size 2 and their corresponding cells
@@ -691,7 +745,7 @@ def validate(df):
     return flag
 
 def main():
-    input_df = pd.read_csv('input.csv', header = None)
+    input_df = pd.read_csv('insight.csv', header = None)
     print "\n\nInput grid: \n"
     print input_df
 
@@ -708,9 +762,17 @@ def main():
     print "\n\nInitial Markups are: \n"
     print df_markup_dict
 
+    # process each block's markups
+    df = process_single_mkups(df_markup_dict, df)
+    print "\nAfter forcing singleton markups: \n", df
+    
+
+    df = process_blocks(df)
+    print "\nAfter processing blocks: \n", df
+
     # For each block, find pre-emptive sets
-    preemptive_set_dict_grid = find_preemptive_sets_grid(df_markup_dict, df)
-    print "\n\nPreemptive sets:\n", preemptive_set_dict_grid
+    #preemptive_set_dict_grid = find_preemptive_sets_grid(df_markup_dict, df)
+    #print "\n\nPreemptive sets:\n", preemptive_set_dict_grid
 
 
 if __name__ == "__main__":
