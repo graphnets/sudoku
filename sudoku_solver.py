@@ -8,11 +8,12 @@
 #  (i)  A Pencil-and-PaperAlgorithm for SolvingSudoku Puzzles - J. F. Crook
 #  (ii) http://digitalcommons.unl.edu/cgi/viewcontent.cgi?article=1015&context=mathmidexppap
 
-# Comments: This code is NOT clean. Has crazy high runtime complexity (and space complexity).
+# Comments: Has crazy high runtime complexity (and space complexity).
 # This code works only certain, easy puzzles.
 
 # TODO:
 
+# 0 - Implement unittest features.
 # 1 - process all markups for each block, row and column. [do cross-outs]
 # 2 - find an efficient way to compare 2 grids. 
 # 3 - find an efficient way to validate a grid if it satisfies Sudoku criteria:
