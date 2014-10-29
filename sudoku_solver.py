@@ -747,6 +747,8 @@ def main():
     #preemptive_set_dict_grid = find_preemptive_sets_grid(df_markup_dict, df)
     #print "\n\nPreemptive sets:\n", preemptive_set_dict_grid
 
+    df.to_csv('solution.csv', sep=',', index=False, index_label=False)
+
 
 if __name__ == "__main__":
     main()
