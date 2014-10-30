@@ -31,4 +31,14 @@ The output is (as printed out by this program): The first row and col are indice
 7  3  5  9  6  2  8  4  1  7
 8  8  7  1  9  4  3  5  2  6
 
+Some TODO stuff:
 
+TODO: Proper variable naming (PEP-8)
+TODO: Create classes and objects for cells and blocks.
+TODO: Implement unittest features.
+TODO: process all markups for each block, row and column. [do cross-outs]
+TODO: find an efficient way to compare 2 grids.
+TODO: find an efficient way to validate a grid if it satisfies Sudoku criteria:
+      The solution of a Sudoku puzzle requires that every row, column, and box contain all
+      the numbers in the set [1, 2, . . . , 9] and that every cell be occupied by one
+      and only one number.
