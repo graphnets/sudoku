@@ -1,45 +1,21 @@
 #!/bin/env python
+""" A program to solve some simple Sudoku puzzles."""
 
-#---------------------------------------------------------------------------------------------
+#---------------------------------------------------------------
 # Sudoku Solver
-# Author : Srivathsan Srinivasagopalan [srivathsan.srinivas@gmail.com]
+# Author : Srivathsan Srinivasagopalan
+# Email: srivathsan.srinivas@gmail.com
 # Date: 21st Oct 2014
 # Algorithm used are from the following study materials:
-#  (i)  A Pencil-and-PaperAlgorithm for SolvingSudoku Puzzles - J. F. Crook
+# A Pencil-and-PaperAlgorithm for SolvingSudoku Puzzles - J. F. Crook
 
 # Comments: Has crazy high runtime complexity (and space complexity).
 # This code works only certain, easy puzzles.
 
-# TODO: Proper variable naming (PEP-8)
-# TODO: Create classes and objects for cells and blocks.
-# TODO: Implement unittest features.
-# TODO: process all markups for each block, row and column. [do cross-outs]
-# TODO: find an efficient way to compare 2 grids. 
-# TODO: find an efficient way to validate a grid if it satisfies Sudoku criteria:
-# The solution of a Sudoku puzzle requires that every row, column, and box contain all 
-# the numbers in the set [1, 2, . . . , 9] and that every cell be occupied by one
-# and only one number.
+#----------------------------------------------------------------
 
-#--------------------------------------------------------------------------------------------
-
-import numpy as np
 import pandas as pd
 from itertools import chain, combinations
-
-
-def get_empty_cells(input_df):
-    """Get dict of row number and array of zero elem."""
-    zero_dict = {}
-    zero_list = []
-    cell = []
-    for index, row in input_df.iterrows():
-        zero_columns = np.where(row.values == 0)[0]
-        zero_dict[index] = zero_columns    
-        for item in zero_columns:
-            cell = [index, item]
-            zero_list.append(cell)
-
-    return zero_list
 
 
 def get_empty_cells_in_block(block_id, grid_df):
@@ -68,7 +44,8 @@ def get_row_values(row_num, input_df):
 def powerset(iterable):
     """Returns a powerset of a given iterable."""
     iterlist = list(iterable)
-    return chain.from_iterable(combinations(iterlist, r) for r in range(len(iterlist)+1))
+    return chain.from_iterable(combinations(iterlist, r) for \
+                               r in range(len(iterlist)+1))
 
 def get_block_id(pair):
     """Given a pair of numbers, returns the candidate block numbers."""
@@ -244,7 +221,7 @@ def get_target_blocks(num, block_list, input_df):
 
     return target_block_set
 
-   
+
 def get_target_block_row_coords(target_block_set, target_row):
     """Gets the target cells in the target row, block."""
     while target_block_set:
@@ -295,7 +272,8 @@ def get_common_nums(row_pairs, row_dict):
 
 
 def get_master_dict(row_tuples, row_pair_val):
-    """returns a dictionary of block_nums and a dict of row-tuples and values."""
+    """returns a dictionary of block_nums and a dict of \
+    row-tuples and values."""
     master_dict = {}
     for i in range(0, 3):
         key = row_tuples[i]
@@ -311,19 +289,9 @@ def get_common_nums_dict(value):
     return common_nums_dict
 
 
-def other_two_stuff(num):
-    """Returns the other two columns or rows given a col or row number."""
-    if 0 <= num < 3:
-        other_two_stuff = set([0, 1, 2]) - set(num)
-    elif 3 <= num < 6:
-        other_two_stuff = set([3, 4, 5]) - set(num)
-    else:
-        other_two_stuff = set([6, 7, 8]) - set(num)
-    return other_two_stuff
-
-
 def is_row_eligible(number, row, grid_df):
-    """Returns a flag indicating if the row is eligible for a number.0: Not eligible."""
+    """Returns a flag indicating if the row is eligible for \
+    a number.0: Not eligible."""
     flag = 1
     r_values = get_row_values(row, grid_df)
     if number in r_values:
@@ -332,7 +300,8 @@ def is_row_eligible(number, row, grid_df):
 
 
 def is_col_eligible(number, col, grid_df):
-    """Returns a flag indicating if the column is eligible for a number. 0: Not eligible."""
+    """Returns a flag indicating if the column is eligible for a \
+    number. 0: Not eligible."""
     flag = 1
     c_values = get_col_values(col, grid_df)
     if number in c_values:
@@ -341,7 +310,8 @@ def is_col_eligible(number, col, grid_df):
 
 
 def get_cell_eligibilty(num, coord, grid_df):
-    """Returns a flag indicating if the cell-coord is eligible for a number. 0: Not eligible."""
+    """Returns a flag indicating if the cell-coord is eligible for \
+    a number. 0: Not eligible."""
     row = coord[0]
     col = coord[1]
     values_in_row = get_row_values(row, grid_df)
@@ -353,13 +323,13 @@ def get_cell_eligibilty(num, coord, grid_df):
             flag = 0
         else:
             flag = 1
-            
+
     return flag
 
 
 
-def get_num_eligible_cells(empty_cells, number, block_id, grid_df):
-    """Returns number of eligible cells for a given number and block_id."""
+def get_num_eligible_cells(empty_cells, number, grid_df):
+    """Returns number of eligible cells for a given number."""
     # There must be ONLY one eligible cell in the block.
     num_eligible_cells = 0
     coord_list = []
@@ -378,7 +348,7 @@ def get_num_eligible_cells(empty_cells, number, block_id, grid_df):
 
 
 def force2(grid_df):
-    """For each block, see if any number [1..9] can fit in; using Sudoku criteria."""
+    """For each block, see if any number [1..9] can fit in."""
     for block_id in range(1, 10):
         empty_cells = get_empty_cells_in_block(block_id, grid_df)
         nums_in_block = get_non_zero_nums_in_block(block_id, grid_df)
@@ -386,7 +356,8 @@ def force2(grid_df):
             if number in nums_in_block:
                 continue
             else:
-                num_eligible_cells, coord_list = get_num_eligible_cells(empty_cells, number, block_id, grid_df)
+                num_eligible_cells, coord_list = \
+                            get_num_eligible_cells(empty_cells, number, grid_df)
                 # There must be ONLY one eligible cell in the block.
                 if num_eligible_cells == 1:
                     # We found ONLY ONE eligible Cell. So fill it in.
@@ -398,7 +369,7 @@ def force2(grid_df):
 
 
 def populate_force2(input_df):
-    """Populate a given grid with a computed number based on Sudoku criteria."""
+    """Populate a given grid with a computed number."""
     forced_df = input_df.copy()
     row_tuples = [(0, 1, 2), (3, 4, 5), (6, 7, 8)]
     row_pair_val = get_grid_row_pairs(input_df)
@@ -413,44 +384,47 @@ def populate_force2(input_df):
             common_numbers = common_nums_dict[rpair]
             common_numbers = flatten_list(common_numbers)
             block_list = get_block_list_row(rpair)
-            
-            # for each num in common nums, find a suitable block and col it could fit in.
-            for num in common_numbers:                
+            # for each num, find a suitable block and col it could fit in.
+            for num in common_numbers:
                 # check if target row has num
                 trow_values = get_row_values(target_row, input_df)
                 if num in trow_values:
                     continue
                 else:
-                    target_block_set = get_target_blocks(num, block_list, input_df)
-                    # Now, we know target-row, target-block-set (potentially more than 1 block).
-                    # Have to find target-col.
+                    target_block_set = \
+                                       get_target_blocks(num, block_list, input_df)
+                    # Now, we know target-row and target-block-set
+                    # (potentially more than 1 block). Have to find target-col.
                     if len(target_block_set) == 0:
                         continue
                     else:
-                        target_block_row_coords = get_target_block_row_coords(target_block_set, target_row)
-                        potential_cells = get_potential_cells(num, target_block_row_coords, input_df)
-                        potential_target_cols = get_potential_target_cols(num, potential_cells, input_df)
-                        
+                        target_block_row_coords = \
+                                get_target_block_row_coords(target_block_set, target_row)
+                        potential_cells = \
+                                get_potential_cells(num, target_block_row_coords, input_df)
+                        potential_target_cols = \
+                                get_potential_target_cols(num, potential_cells, input_df)
                         for num, col_list in potential_target_cols.iteritems():
                             if len(col_list) == 1:
                                 for col in col_list:
                                     coord = [target_row, col]
                                     forced_df = force_number(num, coord, input_df)
-    
+
     return forced_df
 
 
 def get_box_tl_br(cell):
-    """Get the top-left and bottom-right coords of the block where the given cell resides."""
+    """Get the top-left and bottom-right coords of the block."""
     block_side_len = 3
     row = cell[0]
     col = cell[1]
-    top_left = [((row)/block_side_len)*block_side_len, ((col)/block_side_len)*block_side_len]
-    bottom_right = [(((row)/block_side_len)*block_side_len)+2, (((col)/block_side_len)*block_side_len)+2]
+    top_left = [((row)/block_side_len)*block_side_len, \
+                ((col)/block_side_len)*block_side_len]
+    bottom_right = [(((row)/block_side_len)*block_side_len)+2, \
+                    (((col)/block_side_len)*block_side_len)+2]
     box_tl_br = [top_left, bottom_right]
-
     return box_tl_br
-    
+
 
 def get_box_value_set(input_df, box_tl_br):
     """Get all unique values in a 3x3 box."""
@@ -492,7 +466,7 @@ def get_candidate_num_list(cell, block_id, grid_df):
 
 
 def do_block_markup(block_id, grid_df):
-    """# returns a dict of cells and associalted numbers as tuples. {(x,y): (2,8,4), ...}."""
+    """# returns a dict of cells and associalted numbers as tuples."""
     empty_cells = get_empty_cells_in_block(block_id, grid_df)
     cell_markup_dict = {}
     for cell in empty_cells:
@@ -521,7 +495,7 @@ def get_blocks_cells():
     for row in range(0, 3):
         for col in range(0, 3):
             cell = (row, col)
-            cell_list.append(cell) 
+            cell_list.append(cell)
         block[1] = cell_list
 
     cell_list = []
@@ -538,12 +512,11 @@ def get_blocks_cells():
             cell_list.append(cell)
         block[3] = cell_list
 
-
     cell_list = []
     for row in range(3, 6):
         for col in range(0, 3):
             cell = (row, col)
-            cell_list.append(cell) 
+            cell_list.append(cell)
         block[4] = cell_list
 
     cell_list = []
@@ -565,7 +538,7 @@ def get_blocks_cells():
     for row in range(6, 9):
         for col in range(0, 3):
             cell = (row, col)
-            cell_list.append(cell) 
+            cell_list.append(cell)
         block[7] = cell_list
 
     cell_list = []
@@ -601,12 +574,11 @@ def process_single_mkups(df_markup_dict, forced2_df):
             if len(mkup) == 1:
                 num = mkup[0]
                 force_number(num, cell, forced2_df)
-                
     return forced2_df
 
 
 def process_blocks(processed_df):
-    """Process all cells of all blocks for any number that can be placed into grid."""
+    """Find coords for any number that can be placed into grid."""
     df_markup_dict = do_markups(processed_df)
     for cell_mkup_combo in df_markup_dict.itervalues():
         for cell, markup in cell_mkup_combo.iteritems():
@@ -627,7 +599,7 @@ def validate_block(block_id, grid_df):
         set_block_len = len(list(set(numbers)))
         if full_block_len != set_block_len:
             flag = 0
-            
+
     return flag
 
 
@@ -642,7 +614,7 @@ def validate_row(row_num, grid_df):
         set_row_len = len(list(set(numbers)))
         if full_row_len != set_row_len:
             flag = 0
-    
+
     return flag
 
 
@@ -658,7 +630,7 @@ def validate_col(col_num, grid_df):
         if full_col_len != set_col_len:
             print "invalid col"
             flag = 0
-            
+
     return flag
 
 
@@ -673,7 +645,8 @@ def validate(grid_df):
 
 
 def validate_input_rc(input_df):
-    """Returns a flag indicating if a given row and column is valid. 0: invalid"""
+    """Returns a flag indicating if a given row and column \
+    is valid. 0: invalid"""
     flag = 1
     all_nums = []
     for val in range(0, 9):
@@ -697,9 +670,10 @@ def validate_input_grid(input_df):
         flag = validate_input_rc(input_df)
 
     return flag
-    
+
 
 def main():
+    """The Main driver function."""
     input_df = pd.read_csv('insight.csv', header=None)
     print "\n\nInput grid: \n"
     print input_df
@@ -711,8 +685,8 @@ def main():
         print "\nThe given Sudoku puzzle is valid."
 
     # Force values into cells
-    forced_df = populate_force2(input_df) 
-    forced_df1 = populate_force2(forced_df) 
+    forced_df = populate_force2(input_df)
+    forced_df1 = populate_force2(forced_df)
     forced_df2 = populate_force2(forced_df1)
     forced2_df = force2(forced_df2)
     df_markup_dict = do_markups(forced2_df)
@@ -726,7 +700,8 @@ def main():
         print "\nSolved Sudoku: \n", final_df
         print "\nThe given Sudoku puzzle is solved and the solution is valid.\n"
     else:
-        print "\nThe given Sudoku puzzle is not yet solved. Current 'solution' is invalud.\n"
+        print "\nThe given Sudoku puzzle is not yet solved. \
+        Current 'solution' is invalud.\n"
 
     final_df.to_csv('solution.csv', sep=',', index=False, index_label=False)
 
