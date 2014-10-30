@@ -435,7 +435,7 @@ def get_box_value_set(input_df, box_tl_br):
     col2 = box_tl_br[1][1]
     box_df = input_df.ix[row1:row2, col1:col2]
 
-    for index, row in box_df.iterrows():
+    for row in box_df.iterrows()[1]:
         box_value_set.update(row.values)
 
     return box_value_set
