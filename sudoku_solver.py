@@ -697,12 +697,10 @@ def main():
     if flag_count == 9:
         print "\nSolved Sudoku: \n", final_df
         print "\nThe given Sudoku puzzle is solved and the solution is valid.\n"
+        final_df.to_csv('solution.csv', sep=',', index=False, index_label=False)
+        print "The solution is present in 'solution.csv' in pwd.\n"
     else:
-        print "\nThe given Sudoku puzzle is not yet solved. \
-        Current 'solution' is invalud.\n"
-
-    final_df.to_csv('solution.csv', sep=',', index=False, index_label=False)
-
+        print "\nThe given Sudoku puzzle is not yet solved.\n"
 
 if __name__ == "__main__":
     main()
