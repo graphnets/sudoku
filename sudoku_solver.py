@@ -242,7 +242,7 @@ def get_potential_cells(num, target_block_row_coords, input_df):
     return potential_cells
 
 
-def get_potential_target_cols(num, potential_cells, input_df):
+def get_tgt_cols(num, potential_cells, input_df):
     """Returns a dict of potential columns for each number."""
     potential_target_cols = {}
     col_list = []
@@ -367,6 +367,24 @@ def force2(grid_df):
 
     return force2_df
 
+def find_push_num(num, blk_list, t_row, input_df):
+    """Find target col and push the num."""
+    forced_df = input_df.copy()
+    t_blk_set = get_target_blocks(num, blk_list, input_df)
+    # Now, we know target-row and target-block-set
+    # (potentially more than 1 block). Have to find target-col.
+    if len(t_blk_set) != 0:
+        t_blk_row_coords = get_target_block_row_coords(t_blk_set, t_row)
+        potential_cells = get_potential_cells(num, t_blk_row_coords, input_df)
+        potential_tgt_cols = get_tgt_cols(num, potential_cells, input_df)
+        for num, col_list in potential_tgt_cols.iteritems():
+            if len(col_list) == 1:
+                for col in col_list:
+                    coord = [t_row, col]
+                    forced_df = force_number(num, coord, input_df)
+
+    return forced_df
+
 
 def populate_force2(input_df):
     """Populate a given grid with a computed number."""
@@ -377,38 +395,18 @@ def populate_force2(input_df):
 
     for row_tup, value in master_dict.iteritems():
         common_nums_dict = get_common_nums_dict(value)
-
         for rpair in common_nums_dict.iterkeys():
             trow = set(row_tup) - set(rpair)
-            target_row = trow.pop()
+            t_row = trow.pop()
             common_numbers = common_nums_dict[rpair]
             common_numbers = flatten_list(common_numbers)
-            block_list = get_block_list_row(rpair)
+            blk_list = get_block_list_row(rpair)
             # for each num, find a suitable block and col it could fit in.
             for num in common_numbers:
                 # check if target row has num
-                trow_values = get_row_values(target_row, input_df)
-                if num in trow_values:
-                    continue
-                else:
-                    target_block_set = \
-                                       get_target_blocks(num, block_list, input_df)
-                    # Now, we know target-row and target-block-set
-                    # (potentially more than 1 block). Have to find target-col.
-                    if len(target_block_set) == 0:
-                        continue
-                    else:
-                        target_block_row_coords = \
-                                get_target_block_row_coords(target_block_set, target_row)
-                        potential_cells = \
-                                get_potential_cells(num, target_block_row_coords, input_df)
-                        potential_target_cols = \
-                                get_potential_target_cols(num, potential_cells, input_df)
-                        for num, col_list in potential_target_cols.iteritems():
-                            if len(col_list) == 1:
-                                for col in col_list:
-                                    coord = [target_row, col]
-                                    forced_df = force_number(num, coord, input_df)
+                trow_values = get_row_values(t_row, input_df)
+                if num not in trow_values:
+                    forced_df = find_push_num(num, blk_list, t_row, input_df)
 
     return forced_df
 
